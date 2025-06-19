@@ -1,0 +1,16 @@
+*.dat
+x86_64/
+report.*txt
+*.mod
+*.gv
+*_nrn.py
+*.hoc
+*code.gen.c
+*code.gen.so
+*_netpyne.py
+*spikes
+
+.mypy_cache/
+tests/arm64
+arm64
+__pycache__/
