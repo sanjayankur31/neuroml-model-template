@@ -6,5 +6,6 @@
     "author_name": "Jane Doe",
     "author_email": "an_email AT something.com",
     "author_affiliation": "Affiliation",
-    "simulation_engine": ["NEURON", "NetPyNE", "jLEMS"]
+    "simulation_engine": ["NEURON", "NetPyNE", "jLEMS"],
+    "open_source_license": ["MIT license", "BSD license", "GNU General Public License v3", "GNU Affero General Public License v3", "Not open source"]
 }
