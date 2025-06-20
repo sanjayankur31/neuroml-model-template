@@ -1,0 +1,5 @@
+# python bits
+ruff
+pre-commit
+flake8
+mypy

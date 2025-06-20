@@ -1,0 +1,48 @@
+{% raw %}
+name: Continuous build using OMV
+
+on:
+  push:
+    branches: [ main, development, experimental, test*, feat-* ]
+  pull_request:
+    branches: [ main, development, experimental, test*, feat-* ]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.runs-on }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # engine: [ jNeuroML_validate, "NEURON:8.2.7", jNeuroML_NEURON, jNeuroML_NetPyNE]
+        engine: [ jNeuroML_validate ]
+        runs-on: [ ubuntu-latest, macos-latest ]
+        python-version: [ 3.12 ]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python  ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version:  ${{ matrix.python-version }}
+
+    - name: Install HDF5 for pytables on macos-latest
+      if: ${{ matrix.runs-on == 'macos-latest' }}
+      run: |
+        brew install hdf5
+
+    - name: Install OMV
+      run: |
+        pip install -r "code/requirements.txt"
+        pip install -r "code/requirements-dev.txt"
+
+    - name: Run OMV tests on engine ${{ matrix.engine }}
+      run: |
+        omv all -V --engine=${{ matrix.engine }}
+
+    - name: OMV final version info
+      run: |
+        omv list -V # list installed engines
+        env
+{% endraw %}

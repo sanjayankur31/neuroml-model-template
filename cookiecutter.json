@@ -1,0 +1,10 @@
+{
+    "project_name": "Example NeuroML project",
+    "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
+    "project_slug_nospace": "{{ cookiecutter.project_name.replace(' ', '') }}",
+    "short_description": "{{ cookiecutter.project_name }}",
+    "author_name": "Jane Doe",
+    "author_email": "an_email AT something.com",
+    "author_affiliation": "Affiliation",
+    "simulation_engine": ["NEURON", "NetPyNE", "jLEMS"]
+}
