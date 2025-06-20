@@ -6,6 +6,9 @@
     "author_name": "Jane Doe",
     "author_email": "an_email AT something.com",
     "author_affiliation": "Affiliation",
-    "simulation_engine": ["NEURON", "NetPyNE", "jLEMS"],
+    "simulation_engine": ["Brian", "NEURON", "NetPyNE", "Tellurium", "Other"],
+    "use_nsg": ["Y", "N"],
+    "sbml_sedml_support": ["Y", "N"],
+    "use_jupyter_lab": ["Y", "N"],
     "open_source_license": ["MIT license", "BSD license", "GNU General Public License v3", "GNU Affero General Public License v3", "Not open source"]
 }

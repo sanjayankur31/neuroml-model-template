@@ -1,5 +1,8 @@
 # neuroml bits
 pyNeuroML
+pyNeuroML[analysis]
+pyNeuroML[annotations]
+pyNeuroML[tune]
 
 # visualisation
 pyNeuroML[vispy]
@@ -7,6 +10,18 @@ pyNeuroML[vispy]
 # validation
 osbmodelvalidation
 
+{% if cookiecutter.simulation_engine|lower != "Other" -%}
 # simulation engine
-{% if cookiecutter.simulation_engine|lower != "jlems" -%}
 pyNeuroML[{{ cookiecutter.simulation_engine }}] {% endif -%}
+
+{% if cookiecutter.use_nsg|lower != "n" %}
+# NSG support
+pyNeuroML[nsg] {% endif -%}
+
+{% if cookiecutter.sbml_sedml_support|lower != "n" %}
+# COMBINE support
+pyNeuroML[combine] {% endif -%}
+
+{% if cookiecutter.use_jupyter_lab|lower != "n" %}
+# JupyterLab support
+pyNeuroML[jupyter] {% endif -%}
