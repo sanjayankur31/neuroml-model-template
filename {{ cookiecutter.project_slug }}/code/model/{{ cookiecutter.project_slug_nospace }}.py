@@ -2,7 +2,7 @@
 """
 {{ cookiecutter.short_description }}
 
-Copyright 2025 {{ cookiecutter.author_name }}
+Copyright {% now 'local', '%Y' %} {{ cookiecutter.author_name }}
 Author: {{ cookiecutter.author_name }}<{{ cookiecutter.author_email }}>
 """
 
@@ -15,6 +15,7 @@ from neuroml.utils import component_factory
 from pyneuroml.io import write_neuroml2_file
 from pyneuroml.lems import generate_lems_file_for_neuroml
 from pyneuroml.runners import run_lems_with
+from pyneuroml.annotations import create_annotation
 
 
 class {{ cookiecutter.project_slug_nospace }}(object):
@@ -22,6 +23,34 @@ class {{ cookiecutter.project_slug_nospace }}(object):
     """{{ cookiecutter.project_name }} model in NeuroML"""
     network_name = "{{ cookiecutter.project_slug }}"
     nml_document = component_factory(neuroml.NeuroMLDocument, id=network_name)
+
+    # https://docs.neuroml.org/Userdocs/Provenance.html
+    # https://pyneuroml.readthedocs.io/en/development/pyneuroml.annotations.html#pyneuroml.annotations.create_annotation
+    annotation = create_annotation(
+        subject="{{ cookiecutter.project_slug }}",
+        abstract="{{ cookiecutter.short_description }}",
+        title="{{ cookiecutter.project_slug }}",
+        annotation_style="miriam",
+        xml_header=False,
+        keywords=["keyword 1", "keyword 2"],
+        creation_date="{% now 'local', '%Y-%m-%d' %}",
+        authors={
+            "{{ cookiecutter.author_name }}": {
+                "{{ cookiecutter.author_email }}": "email",
+                "https://orcid.org/###": "orcid"
+            }
+        },
+        contributors={
+            "A contributor": {
+                "email@address.com": "email",
+            }
+        },
+        sources={"https://github.com/<username>/<project>": "GitHub"},
+        citations={"https://doi.org/...": "{{ cookiecutter.author_name }} et al"},
+        references={"https://doi.org/...": "{{ cookiecutter.author_name }} et al"}
+    )
+    nml_document.annotation = neuroml.Annotation([annotation])
+    network = nml_document.add(neuroml.Network, id="{{ cookiecutter.project_slug }}")
 
     def __init__(self):
         """Initialise the model from a parameter file."""
@@ -114,14 +143,14 @@ class {{ cookiecutter.project_slug_nospace }}(object):
             self.model_params = json.load(f)
 
         # create and add more methods here as required
-        self.create_network()
+        self.__create_network()
 
         # write model to file
         write_neuroml2_file(self.nml_document, self.neuroml_file)
 
-    def create_network(self):
+    def __create_network(self):
         """Create network"""
-        self.network = self.nml_document.add(neuroml.Network, id="{{ cookiecutter.project_slug }}")
+        # details of creating the network and populations
 
     def create_simulation(self, lems_file: typing.Optional[str]):
         """Create simulation
