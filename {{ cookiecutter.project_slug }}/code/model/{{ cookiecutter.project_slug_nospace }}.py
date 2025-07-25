@@ -18,7 +18,7 @@ from pyneuroml.runners import run_lems_with
 from pyneuroml.annotations import create_annotation
 
 
-class {{ cookiecutter.project_slug_nospace }}(object):
+class {{ cookiecutter.project_name.replace(' ', '') }}(object):
 
     """{{ cookiecutter.project_name }} model in NeuroML"""
     network_name = "{{ cookiecutter.project_slug }}"
@@ -206,5 +206,5 @@ class {{ cookiecutter.project_slug_nospace }}(object):
 
 
 if __name__ == "__main__":
-    model = {{ cookiecutter.project_slug_nospace }}()
+    model = {{ cookiecutter.project_name.replace(' ', '') }}()
     model.app()
