@@ -14,10 +14,7 @@ import subprocess
 
 
 def use_git():
-    """Commit initial project to a git repository
-    :returns: TODO
-
-    """
+    """Commit initial project to a git repository """
     print("Initialising a new Git repository")
     subprocess.run(["git", "init"], check=True)
 
@@ -33,7 +30,7 @@ def use_git():
 
 
 if __name__ == "__main__":
-    {% if cookiecutter.use_git|lower != "n" %}
+    {% if cookiecutter.use_git is true %}
 
     sys.exit(use_git())
 

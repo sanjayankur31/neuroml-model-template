@@ -14,14 +14,14 @@ osbmodelvalidation
 # simulation engine
 pyNeuroML[{{ cookiecutter.simulation_engine }}] {% endif -%}
 
-{% if cookiecutter.use_nsg|lower != "n" %}
+{% if cookiecutter.use_nsg is true %}
 # NSG support
 pyNeuroML[nsg] {% endif -%}
 
-{% if cookiecutter.sbml_sedml_support|lower != "n" %}
+{% if cookiecutter.sbml_sedml_support is true %}
 # COMBINE support
 pyNeuroML[combine] {% endif -%}
 
-{% if cookiecutter.use_jupyter_lab|lower != "n" %}
+{% if cookiecutter.use_jupyter_lab is true %}
 # JupyterLab support
 pyNeuroML[jupyter] {% endif -%}
