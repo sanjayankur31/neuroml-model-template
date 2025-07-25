@@ -201,16 +201,8 @@ class {{ cookiecutter.project_slug_nospace }}(object):
             engine="jneuroml_brian", lems_file_name=self.lems_file,
             skip_run=skip_run,
             only_generate_scripts=only_generate_scripts)
-        {-% endif -%}
 
-    def __log_var(self, var: str):
-        """Print value of class variable to debug logger
-
-        :param var: name of variable
-        :type var: str
-
-        """
-        self.logger.debug(f"VAR: {var}: {getattr(self, var)}")
+        {% endif %}
 
 
 if __name__ == "__main__":
