@@ -18,18 +18,18 @@ from pyneuroml.runners import run_lems_with
 from pyneuroml.annotations import create_annotation
 
 
-class {{ cookiecutter.project_name.replace(' ', '') }}(object):
+class {{ cookiecutter.__project_slug_nospace }}(object):
 
     """{{ cookiecutter.project_name }} model in NeuroML"""
-    network_name = "{{ cookiecutter.project_slug }}"
+    network_name = "{{ cookiecutter.__project_slug }}"
     nml_document = component_factory(neuroml.NeuroMLDocument, id=network_name)
 
     # https://docs.neuroml.org/Userdocs/Provenance.html
     # https://pyneuroml.readthedocs.io/en/development/pyneuroml.annotations.html#pyneuroml.annotations.create_annotation
     annotation = create_annotation(
-        subject="{{ cookiecutter.project_slug }}",
+        subject="{{ cookiecutter.__project_slug }}",
         abstract="{{ cookiecutter.short_description }}",
-        title="{{ cookiecutter.project_slug }}",
+        title="{{ cookiecutter.project_name }}",
         annotation_style="miriam",
         xml_header=False,
         keywords=["keyword 1", "keyword 2"],
@@ -50,7 +50,7 @@ class {{ cookiecutter.project_name.replace(' ', '') }}(object):
         references={"https://doi.org/...": "{{ cookiecutter.author_name }} et al"}
     )
     nml_document.annotation = neuroml.Annotation([annotation])
-    network = nml_document.add(neuroml.Network, id="{{ cookiecutter.project_slug }}")
+    network = nml_document.add(neuroml.Network, id="{{ cookiecutter.__project_slug }}")
 
     def __init__(self):
         """Initialise the model from a parameter file."""
@@ -166,7 +166,7 @@ class {{ cookiecutter.project_name.replace(' ', '') }}(object):
                 return
 
         quantities, sim = generate_lems_file_for_neuroml(
-            sim_id="{{ cookiecutter.project_slug }}",
+            sim_id="{{ cookiecutter.__project_slug }}",
             neuroml_file=self.neuroml_file,
             target=self.network,
             duration="1500 ms",
@@ -202,9 +202,9 @@ class {{ cookiecutter.project_name.replace(' ', '') }}(object):
             skip_run=skip_run,
             only_generate_scripts=only_generate_scripts)
 
-        {% endif %}
+        {%- endif %}
 
 
 if __name__ == "__main__":
-    model = {{ cookiecutter.project_name.replace(' ', '') }}()
+    model = {{ cookiecutter.__project_slug_nospace }}()
     model.app()

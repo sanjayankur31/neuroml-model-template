@@ -1,15 +1,28 @@
 {
     "project_name": "Example NeuroML project",
-    "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
-    "project_slug_nospace": "{{ cookiecutter.project_name.replace(' ', '') }}",
+    "__project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
+    "__project_slug_nospace": "{{ cookiecutter.project_name.replace(' ', '') }}",
     "short_description": "{{ cookiecutter.project_name }}",
     "author_name": "Jane Doe",
     "author_email": "an_email AT something.com",
     "author_affiliation": "Affiliation",
     "simulation_engine": ["Brian", "NEURON", "NetPyNE", "Tellurium", "Other"],
-    "use_nsg": ["Y", "N"],
-    "sbml_sedml_support": ["Y", "N"],
-    "use_jupyter_lab": ["Y", "N"],
+    "use_nsg": false,
+    "sbml_sedml_support": false,
+    "use_jupyter_lab": true,
     "open_source_license": ["MIT license", "BSD license", "GNU General Public License v3", "GNU Affero General Public License v3", "Not open source"],
-    "use_git": ["Y", "N"]
+    "use_git": true,
+    "__prompts__": {
+        "project_name": "Name of the project (with spaces)",
+        "short_description": "A short description",
+        "author_name": "Name of the author (you?)",
+        "author_email": "Author's email",
+        "author_affiliation": "Your affiliation",
+        "simulation_engine": "What simulation engine do you want to use?",
+        "use_nsg": "Do you want to use the Neuroscience Gateway (http://www.nsgportal.org/)?",
+        "sbml_sedml_support": "Do you need SBML/SED-ML support?",
+        "use_jupyter_lab": "Do you want to use JupyterLab?",
+        "open_source_license": "What license do you want to use?",
+        "use_git": "Do you want to initialise the folder as a Git repository?"
+    }
 }
