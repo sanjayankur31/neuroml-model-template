@@ -12,6 +12,7 @@
     "use_jupyter_lab": true,
     "open_source_license": ["MIT license", "BSD license", "GNU General Public License v3", "GNU Affero General Public License v3", "Not open source"],
     "use_git": true,
+    "use_git_annex": false,
     "__prompts__": {
         "project_name": "Name of the project (with spaces)",
         "short_description": "A short description",
@@ -23,6 +24,7 @@
         "sbml_sedml_support": "Do you need SBML/SED-ML support?",
         "use_jupyter_lab": "Do you want to use JupyterLab?",
         "open_source_license": "What license do you want to use?",
-        "use_git": "Do you want to initialise the folder as a Git repository?"
+        "use_git": "Do you want to initialise the folder as a Git repository?",
+        "use_git_annex": "Do you want to use `git-annex` to manage the `simdata` directory (requires `use_git`)?"
     }
 }
