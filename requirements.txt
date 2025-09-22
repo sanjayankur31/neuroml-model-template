@@ -1,0 +1,7 @@
+pytest
+cookiecutter
+pytest-cookies
+pyneuroml
+pyneuroml[annotations]
+typer
+libneuroml
