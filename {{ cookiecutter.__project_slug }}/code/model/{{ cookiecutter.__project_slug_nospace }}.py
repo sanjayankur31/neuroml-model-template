@@ -11,6 +11,7 @@ import typing
 import logging
 import neuroml
 import typer
+from datetime import datetime
 from neuroml.utils import component_factory
 from pyneuroml.io import write_neuroml2_file
 from pyneuroml.lems import generate_lems_file_for_neuroml
@@ -59,18 +60,22 @@ class {{ cookiecutter.__project_slug_nospace }}(object):
         self.app = typer.Typer(help="{{ cookiecutter.project_name }} model in NeuroML")
         self.app.command()(self.create_model)
         self.app.command()(self.create_simulation)
+        self.app.command()(self.create_model_simulation)
         self.app.command()(self.simulate)
         self.app.callback()(self.configure)
+        self.timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
 
     def configure(
         self,
         code_config_file: str = "parameters/general.json",
         model_parameters_file: str = "parameters/model.json",
         neuroml_file: typing.Optional[str] = None,
-        seed: typing.Optional[str] = None,
+        seed: typing.Optional[int] = None,
         label: typing.Optional[str] = None,
+        model_variant: typing.Optional[str] = None,
         lems_file: typing.Optional[str] = None,
         logging_level: typing.Optional[str] = None,
+
     ):
         """Configure model
 
@@ -98,12 +103,22 @@ class {{ cookiecutter.__project_slug_nospace }}(object):
             provided_label = self.general_params.get("label")
         self.label = f"_{provided_label.replace(' ', '_')}" if provided_label else ""
 
+        if model_variant:
+            provided_model_variant = model_variant
+        else:
+            provided_model_variant = self.model_params.get("label")
+        self.model_variant = (
+            f"{provided_model_variant.replace(' ', '_')}"
+            if provided_model_variant
+            else ""
+        )
+
         if neuroml_file:
             self.neuroml_file = neuroml.file
         else:
             self.neuroml_file = self.general_params.get(
                 "neuroml_file",
-                f"{self.network_name}{self.label}_{self.seed}.net.nml",
+                f"{self.network_name}{self.label}_{self.model_variant}_{self.seed}_{self.timestamp}.net.nml",
             )
 
         if lems_file:
@@ -111,7 +126,7 @@ class {{ cookiecutter.__project_slug_nospace }}(object):
         else:
             self.lems_file = self.general_params.get(
                 "lems_file",
-                f"LEMS_test_Golgi_cells{self.label}_{self.seed}.xml",
+                f"LEMS_{self.network_name}{self.label}_{self.model_variant}_{self.seed}_{self.timestamp}.xml",
             )
 
         if logging_level:
@@ -152,28 +167,55 @@ class {{ cookiecutter.__project_slug_nospace }}(object):
         """Create network"""
         # details of creating the network and populations
 
-    def create_simulation(self, lems_file: typing.Optional[str]):
+    def create_simulation(self, lems_file: typing.Optional[str] = None,
+                          model_file: typing.Optional[str] = None):
         """Create simulation
+
         :param lems_file: name of LEMS file to serialise simulation to
         :type lems_file: str
         """
         if lems_file:
+            self.logger.info(f"LEMS file name provided. Using it: {lems_file}")
             self.lems_file = lems_file
         else:
             # if not already set, use a default
             if not hasattr(self, "lems_file"):
-                self.logger.error("No file name set for lems_file before, please pass a value")
+                self.logger.error(
+                    "No file name set for lems_file before, please pass a value"
+                )
                 return
 
+        if model_file:
+            self.logger.info(f"Model file name provided. Using it: {model_file}")
+            self.neuroml_file = model_file
+            self.timestamp = model_file.split(".")[0].split("_")[-1]
+            self.lems_file = f"LEMS_{self.network_name}{self.label}_{self.model_variant}_{self.seed}_{self.timestamp}.xml"
+
+        self.logger.info(f"Saving LEMS simulation file {self.lems_file}")
         quantities, sim = generate_lems_file_for_neuroml(
-            sim_id="{{ cookiecutter.__project_slug }}",
+            sim_id=f"{{ cookiecutter.__project_slug }}_{self.timestamp}",
             neuroml_file=self.neuroml_file,
-            target=self.network,
+            target=self.network.id,
             duration="1500 ms",
             dt="0.01",
             lems_file_name=self.lems_file,
             target_dir=".",
+            gen_plots_for_all_v=True,
+            gen_saves_for_all_v=True,
+            simulation_seed=self.seed,
         )
+
+        validate_neuroml2_lems_file(self.lems_file)
+
+    def create_model_simulation(self):
+        """Create both the model and simulation
+
+        Note, that this does not accept any parameters. So, it respects the
+        default parameters only.
+
+        """
+        self.create_model()
+        self.create_simulation()
 
     def simulate(self, skip_run: bool = True, only_generate_scripts: bool = False):
         """Simulate the model
