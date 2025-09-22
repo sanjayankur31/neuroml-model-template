@@ -1,5 +1,13 @@
 # NeuroML model template
 
+[![GitHub CI](https://github.com/sanjayankur31/neuroml-model-template/actions/workflows/ci.yml/badge.svg)](https://github.com/sanjayankur31/neuroml-model-template/actions/workflows/ci.yml)
+[![GitHub](https://img.shields.io/github/license/sanjayankur31/neuroml-model-template)](https://github.com/sanjayankur31/neuroml-model-template/blob/master/LICENSE.lesser)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/sanjayankur31/neuroml-model-template)](https://github.com/sanjayankur31/neuroml-model-template/pulls)
+[![GitHub issues](https://img.shields.io/github/issues/sanjayankur31/neuroml-model-template)](https://github.com/sanjayankur31/neuroml-model-template/issues)
+[![GitHub Org's stars](https://img.shields.io/github/stars/NeuroML?style=social)](https://github.com/NeuroML)
+[![Twitter Follow](https://img.shields.io/twitter/follow/NeuroML?style=social)](https://twitter.com/NeuroML)
+[![Gitter](https://badges.gitter.im/NeuroML/community.svg)](https://gitter.im/NeuroML/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 Cookiecutter template repository for NeuroML modelling projects.
 
 https://docs.neuroml.org
