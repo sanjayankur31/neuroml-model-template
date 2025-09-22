@@ -18,6 +18,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up git user
         run: |
+          git config --global init.defaultBranch  "main"
           git config --global user.email "testuser@neuroml.org"
           git config --global user.name "A test NeuroML user"
       - name: Install uv and set the python version
