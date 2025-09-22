@@ -51,7 +51,7 @@ class {{ cookiecutter.__project_slug_nospace }}(object):
         references={"https://doi.org/...": "{{ cookiecutter.author_name }} et al"}
     )
     nml_document.annotation = neuroml.Annotation([annotation])
-    network = nml_document.add(neuroml.Network, id="{{ cookiecutter.__project_slug }}")
+    network = nml_document.add(neuroml.Network, id="{{ cookiecutter.__project_slug }}", validate=False)
 
     def __init__(self):
         """Initialise the model from a parameter file."""
