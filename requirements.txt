@@ -5,3 +5,4 @@ pyneuroml
 pyneuroml[annotations]
 typer
 libneuroml
+omegaconf
