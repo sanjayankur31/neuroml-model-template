@@ -39,6 +39,7 @@ class {{ cookiecutter.__project_slug_nospace }}(object):
         self.app.command()(self.create_model)
         self.app.command()(self.create_simulation)
         self.app.command()(self.create_model_simulation)
+        self.app.command()(self.create_model_simulation_run)
         self.app.command()(self.simulate)
         self.app.callback()(self.configure)
         self.timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -233,6 +234,17 @@ class {{ cookiecutter.__project_slug_nospace }}(object):
         )
 
         validate_neuroml2_lems_file(self.lems_file)
+
+    def create_model_simulation_run(self):
+        """Create model, simulation, and run it
+
+        Note, that this does not accept any parameters. So, it respects the
+        default parameters only.
+
+        """
+        self.create_model()
+        self.create_simulation()
+        self.simulate()
 
     def create_model_simulation(self):
         """Create both the model and simulation
