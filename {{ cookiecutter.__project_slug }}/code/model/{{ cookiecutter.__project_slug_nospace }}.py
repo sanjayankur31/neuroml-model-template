@@ -96,10 +96,10 @@ class {{ cookiecutter.__project_slug_nospace }}(object):
         numpy.random.seed(self.seed)
 
         provided_label = self.sim_parameters.get("label")
-        self.label = f"{provided_label.replace(' ', '_')}" if provided_label else ""
+        self.sim_label = f"{provided_label.replace(' ', '_')}" if provided_label else ""
 
         provided_model_variant = self.model_parameters.get("label")
-        self.model_variant = (
+        self.model_label = (
             f"{provided_model_variant.replace(' ', '_')}"
             if provided_model_variant
             else ""
@@ -107,12 +107,12 @@ class {{ cookiecutter.__project_slug_nospace }}(object):
 
         self.neuroml_file = self.sim_parameters.get(
             "neuroml_file",
-            f"{self.network_name}_{self.label}_{self.model_variant}_{self.seed}_{self.timestamp}.net.nml",
+            f"{self.network_name}_{self.sim_label}_{self.model_label}_{self.timestamp}.net.nml",
         )
 
         self.lems_file = self.sim_parameters.get(
             "lems_file",
-            f"LEMS_test_Golgi_cells_{self.label}_{self.model_variant}_{self.seed}_{self.timestamp}.xml",
+            f"LEMS_test_Golgi_cells_{self.sim_label}_{self.model_label}_{self.timestamp}.xml",
         )
 
         self.logging_level = self.sim_parameters.get(
@@ -216,7 +216,7 @@ class {{ cookiecutter.__project_slug_nospace }}(object):
             self.logger.info(f"Model file name provided. Using it: {model_file}")
             self.neuroml_file = model_file
             self.timestamp = model_file.split(".")[0].split("_")[-1]
-            self.lems_file = f"LEMS_{self.network_name}{self.label}_{self.model_variant}_{self.seed}_{self.timestamp}.xml"
+            self.lems_file = f"LEMS_{self.network_name}{self.sim_label}_{self.model_label}_{self.timestamp}.xml"
 
         self.logger.info(f"Saving LEMS simulation file {self.lems_file}")
         quantities, sim = generate_lems_file_for_neuroml(
