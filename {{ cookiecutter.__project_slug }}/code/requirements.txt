@@ -1,3 +1,6 @@
+# general
+omegaconf
+
 # neuroml bits
 pyNeuroML
 pyNeuroML[analysis]

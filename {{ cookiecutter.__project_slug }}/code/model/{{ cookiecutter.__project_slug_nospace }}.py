@@ -12,6 +12,7 @@ import logging
 import neuroml
 import typer
 from datetime import datetime
+from omegaconf import OmegaConf
 from neuroml.utils import component_factory
 from pyneuroml.io import write_neuroml2_file
 from pyneuroml.lems import generate_lems_file_for_neuroml
@@ -25,33 +26,10 @@ class {{ cookiecutter.__project_slug_nospace }}(object):
     network_name = "{{ cookiecutter.__project_slug }}"
     nml_document = component_factory(neuroml.NeuroMLDocument, id=network_name)
 
-    # https://docs.neuroml.org/Userdocs/Provenance.html
-    # https://pyneuroml.readthedocs.io/en/development/pyneuroml.annotations.html#pyneuroml.annotations.create_annotation
-    annotation = create_annotation(
-        subject="{{ cookiecutter.__project_slug }}",
-        abstract="{{ cookiecutter.short_description }}",
-        title="{{ cookiecutter.project_name }}",
-        annotation_style="miriam",
-        xml_header=False,
-        keywords=["keyword 1", "keyword 2"],
-        creation_date="{% now 'local', '%Y-%m-%d' %}",
-        authors={
-            "{{ cookiecutter.author_name }}": {
-                "{{ cookiecutter.author_email }}": "email",
-                "https://orcid.org/###": "orcid"
-            }
-        },
-        contributors={
-            "A contributor": {
-                "email@address.com": "email",
-            }
-        },
-        sources={"https://github.com/<username>/<project>": "GitHub"},
-        citations={"https://doi.org/...": "{{ cookiecutter.author_name }} et al"},
-        references={"https://doi.org/...": "{{ cookiecutter.author_name }} et al"}
-    )
-    nml_document.annotation = neuroml.Annotation([annotation])
     network = nml_document.add(neuroml.Network, id="{{ cookiecutter.__project_slug }}", validate=False)
+    default_sim_config_file = "parameters/simulation-defaults.json"
+    default_model_config_file = "parameters/model-defaults.json"
+
 
     def __init__(self):
         """Initialise the model from a parameter file."""
@@ -67,15 +45,10 @@ class {{ cookiecutter.__project_slug_nospace }}(object):
 
     def configure(
         self,
-        code_config_file: str = "parameters/general.json",
-        model_parameters_file: str = "parameters/model.json",
-        neuroml_file: typing.Optional[str] = None,
-        seed: typing.Optional[int] = None,
-        label: typing.Optional[str] = None,
-        model_variant: typing.Optional[str] = None,
-        lems_file: typing.Optional[str] = None,
-        logging_level: typing.Optional[str] = None,
-
+        sim_config_file: typing.Optional[str] = None,
+        model_parameters_file: typing.Optional[str] = None,
+        sim_overrides: list[str] = typer.Option(None, help="Optional simulation parameters overrides"),
+        model_overrides: list[str] = typer.Option(None, help="Optional model parameters overrides"),
     ):
         """Configure model
 
@@ -87,55 +60,65 @@ class {{ cookiecutter.__project_slug_nospace }}(object):
         :type lems_file: str
 
         """
-        self.code_config_file = code_config_file
+        self.sim_config_file = sim_config_file
+        self.default_sim_parameters = OmegaConf.load(self.default_sim_config_file)
+
         self.model_parameters_file = model_parameters_file
-        with open(self.code_config_file) as f:
-            self.general_params = json.load(f)
+        self.default_model_parameters = OmegaConf.load(self.default_model_config_file)
 
-        if seed:
-            self.seed = seed
+        if self.sim_config_file:
+            more_sim_parameters = OmegaConf.load(self.sim_config_file)
+            self.sim_parameters = OmegaConf.merge(self.default_sim_parameters, more_sim_parameters)
         else:
-            self.seed = self.general_params.get("seed", "1234")
+            self.sim_parameters = self.default_sim_parameters
 
-        if label:
-            provided_label = label
-        else:
-            provided_label = self.general_params.get("label")
-        self.label = f"_{provided_label.replace(' ', '_')}" if provided_label else ""
+        if sim_overrides:
+            for o in sim_overrides:
+                key, val = o.split("=")
+                OmegaConf.update(self.sim_parameters, key, eval(val))
 
-        if model_variant:
-            provided_model_variant = model_variant
+        # load model parameters
+        if model_parameters_file:
+            more_model_parameters = OmegaConf.load(model_parameters_file)
+            self.model_parameters = OmegaConf.merge(self.default_model_parameters, more_model_parameters)
         else:
-            provided_model_variant = self.model_params.get("label")
+            self.model_parameters = self.default_model_parameters
+
+        if model_overrides:
+            for o in model_overrides:
+                key, val = o.split("=")
+                OmegaConf.update(self.model_parameters, key, eval(val))
+
+        self.seed = self.sim_parameters.get("seed", 1234)
+
+        # set seeds
+        random.seed(self.seed)
+        numpy.random.seed(self.seed)
+
+        provided_label = self.sim_parameters.get("label")
+        self.label = f"{provided_label.replace(' ', '_')}" if provided_label else ""
+
+        provided_model_variant = self.model_parameters.get("label")
         self.model_variant = (
             f"{provided_model_variant.replace(' ', '_')}"
             if provided_model_variant
             else ""
         )
 
-        if neuroml_file:
-            self.neuroml_file = neuroml.file
-        else:
-            self.neuroml_file = self.general_params.get(
-                "neuroml_file",
-                f"{self.network_name}{self.label}_{self.model_variant}_{self.seed}_{self.timestamp}.net.nml",
-            )
+        self.neuroml_file = self.sim_parameters.get(
+            "neuroml_file",
+            f"{self.network_name}_{self.label}_{self.model_variant}_{self.seed}_{self.timestamp}.net.nml",
+        )
 
-        if lems_file:
-            self.lems_file = lems_file
-        else:
-            self.lems_file = self.general_params.get(
-                "lems_file",
-                f"LEMS_{self.network_name}{self.label}_{self.model_variant}_{self.seed}_{self.timestamp}.xml",
-            )
+        self.lems_file = self.sim_parameters.get(
+            "lems_file",
+            f"LEMS_test_Golgi_cells_{self.label}_{self.model_variant}_{self.seed}_{self.timestamp}.xml",
+        )
 
-        if logging_level:
-            self.logging_level = logging_level
-        else:
-            self.logging_level = self.general_params.get(
-                "logging_level",
-                "DEBUG",
-            )
+        self.logging_level = self.sim_parameters.get(
+            "logging_level",
+            "DEBUG",
+        )
 
         # set up a logger
         self.logger = logging.getLogger(self.network_name)
@@ -149,13 +132,46 @@ class {{ cookiecutter.__project_slug_nospace }}(object):
         self.logger.addHandler(ch)
         self.logger.propagate = False
 
+        self.logger.debug(
+            f"CONFIG: Simulation parameters: {json.dumps(OmegaConf.to_container(self.sim_parameters), indent=4)}"
+        )
+        self.logger.debug(
+            f"CONFIG: Model parameters: {json.dumps(OmegaConf.to_container(self.model_parameters), indent=4)}"
+        )
+
     def create_model(self):
         """Create the model"""
         self.logger.info("Creating model")
 
-        # load model parameters
-        with open(self.model_parameters_file) as f:
-            self.model_params = json.load(f)
+        if self.sim_parameters.get("Annotations", True):
+            # https://docs.neuroml.org/Userdocs/Provenance.html
+            # https://pyneuroml.readthedocs.io/en/development/pyneuroml.annotations.html#pyneuroml.annotations.create_annotation
+            annotation = create_annotation(
+                subject="{{ cookiecutter.__project_slug }}",
+                abstract="{{ cookiecutter.short_description }}",
+                title="{{ cookiecutter.project_name }}",
+                annotation_style="miriam",
+                xml_header=False,
+                keywords=["keyword 1", "keyword 2"],
+                creation_date="{% now 'local', '%Y-%m-%d' %}",
+                authors={
+                    "{{ cookiecutter.author_name }}": {
+                        "{{ cookiecutter.author_email }}": "email",
+                        "https://orcid.org/###": "orcid"
+                    }
+                },
+                contributors={
+                    "A contributor": {
+                        "email@address.com": "email",
+                    }
+                },
+                sources={"https://github.com/<username>/<project>": "GitHub"},
+                citations={"https://doi.org/...": "{{ cookiecutter.author_name }} et al"},
+                references={"https://doi.org/...": "{{ cookiecutter.author_name }} et al"}
+            )
+            self.nml_document.annotation = neuroml.Annotation([annotation])
+        else:
+            self.logger.warning("Annotations disabled in parameters file")
 
         # create and add more methods here as required
         self.__create_network()
