@@ -139,6 +139,17 @@ class {{ cookiecutter.__project_slug_nospace }}(object):
             f"CONFIG: Model parameters: {json.dumps(OmegaConf.to_container(self.model_parameters), indent=4)}"
         )
 
+        consolidated_sim_config_file = f"simulation_{self.timestamp}.json"
+        with open (consolidated_sim_config_file, 'w') as f:
+            json.dump(OmegaConf.to_container(self.sim_parameters), indent=4, fp=f)
+        self.logger.info(f"Simulation parameters written to: {consolidated_sim_config_file}")
+
+        consolidated_model_config_file = f"model_{self.timestamp}.json"
+        with open (consolidated_model_config_file, 'w') as f:
+            json.dump(OmegaConf.to_container(self.model_parameters), indent=4, fp=f)
+        self.logger.info(f"Model parameters written to: {consolidated_model_config_file}")
+
+
     def create_model(self):
         """Create the model"""
         self.logger.info("Creating model")
